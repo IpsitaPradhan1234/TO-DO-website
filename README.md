@@ -1,0 +1,2 @@
+![To-Do Website](https://github.com/user-attachments/assets/e6928ddd-5c2e-4de4-bafd-0d9a630e7ff6)
+The To-Do List App is a simple and intuitive task manager that helps users organize daily activities efficiently. It allows adding, editing, completing, and deleting tasks. Tasks are saved in the browser using local Storage. With a clean, responsive design and smooth user interactions, the app offers a practical, user-friendly way to stay organized and productive across all devices.

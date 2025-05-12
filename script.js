@@ -1,94 +1,110 @@
-// access input field
+// Get elements
 const input = document.querySelector('#todo-input');
+const submitBtn = document.querySelector('#submit');
+const todoContainer = document.querySelector('.todo-lists');
 
-// Listening to click event from "Add" button.
-document.querySelector('#submit').addEventListener('click', () => {
-  // value of the input field
-  const inputData = input.value;
+// Load todos from localStorage on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+  savedTodos.forEach(todoText => {
+    createTodoElement(todoText);
+  });
+});
+
+// Handle "Add" button click
+submitBtn.addEventListener('click', () => {
+  const inputData = input.value.trim();
+  if (inputData === "") return;
+
+  createTodoElement(inputData);
+  saveTodoToLocal(inputData);
   input.value = "";
+});
 
-  // creating todo item element
+// Create and display a todo item
+function createTodoElement(text) {
   const todo_el = document.createElement('div');
   todo_el.classList.add('todo-item');
 
   const todo_content_el = document.createElement('div');
-  todo_el.appendChild(todo_content_el);
-
   const todo_input_el = document.createElement('input');
   todo_input_el.classList.add('text');
   todo_input_el.type = 'text';
-  todo_input_el.value = inputData;
+  todo_input_el.value = text;
   todo_input_el.setAttribute('readonly', 'readonly');
 
   todo_content_el.appendChild(todo_input_el);
+  todo_el.appendChild(todo_content_el);
 
   const todo_actions_el = document.createElement('div');
   todo_actions_el.classList.add('action-items');
 
   const todo_done_el = document.createElement('i');
-  todo_done_el.classList.add('fa-solid');
-  todo_done_el.classList.add('fa-check');
+  todo_done_el.classList.add('fa-solid', 'fa-check');
 
   const todo_edit_el = document.createElement('i');
-  todo_edit_el.classList.add('fa-solid');
-  todo_edit_el.classList.add('fa-pen-to-square');
-  todo_edit_el.classList.add('edit');
+  todo_edit_el.classList.add('fa-solid', 'fa-pen-to-square', 'edit');
 
   const todo_delete_el = document.createElement('i');
-  todo_delete_el.classList.add('fa-solid');
-  todo_delete_el.classList.add('fa-trash');
+  todo_delete_el.classList.add('fa-solid', 'fa-trash');
 
-  todo_actions_el.appendChild(todo_done_el)
+  todo_actions_el.appendChild(todo_done_el);
   todo_actions_el.appendChild(todo_edit_el);
   todo_actions_el.appendChild(todo_delete_el);
-
   todo_el.appendChild(todo_actions_el);
-  console.log(todo_el)
-  // add the todo-item to lists
-  document.querySelector('.todo-lists').appendChild(todo_el);
 
-  // done functionality
+  todoContainer.appendChild(todo_el);
+
+  // DONE functionality
   todo_done_el.addEventListener('click', () => {
-    todo_input_el.classList.add('done')
+    todo_input_el.classList.add('done');
     todo_el.removeChild(todo_actions_el);
-  })
+  });
 
-  // edit functionality
-  todo_edit_el.addEventListener('click', (e) => {
+  // EDIT functionality
+  todo_edit_el.addEventListener('click', () => {
     if (todo_edit_el.classList.contains("edit")) {
-      todo_edit_el.classList.remove("edit");
-      todo_edit_el.classList.remove("fa-pen-to-square");
-      todo_edit_el.classList.add("fa-x");
-      todo_edit_el.classList.add("save");
+      todo_edit_el.classList.remove("edit", "fa-pen-to-square");
+      todo_edit_el.classList.add("fa-x", "save");
       todo_input_el.removeAttribute("readonly");
       todo_input_el.focus();
     } else {
-      todo_edit_el.classList.remove("save");
-      todo_edit_el.classList.remove("fa-x");
-      todo_edit_el.classList.add("fa-pen-to-square");
-      todo_edit_el.classList.add("edit");
+      todo_edit_el.classList.remove("save", "fa-x");
+      todo_edit_el.classList.add("fa-pen-to-square", "edit");
       todo_input_el.setAttribute("readonly", "readonly");
+
+      updateTodoInLocal(text, todo_input_el.value);
+      text = todo_input_el.value;
     }
   });
 
-  // delete functionality
-  todo_delete_el.addEventListener('click', (e) => {
-    console.log(todo_el);
-    document.querySelector('.todo-lists').removeChild(todo_el);
+  // DELETE functionality
+  todo_delete_el.addEventListener('click', () => {
+    todoContainer.removeChild(todo_el);
+    deleteTodoFromLocal(todo_input_el.value);
   });
-})
+}
 
+// Save to localStorage
+function saveTodoToLocal(todoText) {
+  const todos = JSON.parse(localStorage.getItem('todos')) || [];
+  todos.push(todoText);
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
 
+// Update edited todo in localStorage
+function updateTodoInLocal(oldText, newText) {
+  const todos = JSON.parse(localStorage.getItem('todos')) || [];
+  const index = todos.indexOf(oldText);
+  if (index !== -1) {
+    todos[index] = newText;
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }
+}
 
-
-
-/* <div class="todo-item">
-<div>
-  <input type="text" class="text" readonly="readonly">
-</div>
-<div class="action-items">
-  <i class="fa-solid fa-check"></i>
-  <i class="fa-solid fa-pen-to-square edit"></i>
-  <i class="fa-solid fa-trash"></i>
-</div>
-</div> -->*/
+// Delete from localStorage
+function deleteTodoFromLocal(todoText) {
+  let todos = JSON.parse(localStorage.getItem('todos')) || [];
+  todos = todos.filter(todo => todo !== todoText);
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
